@@ -26,3 +26,12 @@ export function createElement(name, props = {}, ...children) {
 
   return element;
 }
+
+export const getUniqueNumber = (function () {
+  let count = 0;
+
+  return function () {
+    count += 1;
+    return count;
+  };
+})();
