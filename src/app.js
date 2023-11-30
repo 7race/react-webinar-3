@@ -1,41 +1,98 @@
-import React, {useCallback} from 'react';
+import React, { useState, useCallback } from "react";
 import List from "./components/list";
 import Controls from "./components/controls";
 import Head from "./components/head";
 import PageLayout from "./components/page-layout";
+import Cart from "./components/cart";
+import Overlay from "./components/overlay";
 
 /**
  * Приложение
  * @param store {Store} Хранилище состояния приложения
  * @returns {React.ReactElement}
  */
-function App({store}) {
 
+function App({ store }) {
   const list = store.getState().list;
+  const cartList = store.getCartList();
+
+  const [total, setTotal] = useState({
+    price: 0,
+    count: 0,
+  });
+
+  const [isCartShowed, setIsCartShowed] = useState(false);
 
   const callbacks = {
-    onDeleteItem: useCallback((code) => {
-      store.deleteItem(code);
-    }, [store]),
+    onAddItemToCartList: useCallback(
+      (item) => {
+        store.addItemToCartList(item);
+        const total = calculateTotal(cartList);
+        setTotal(total);
+      },
+      [store, cartList]
+    ),
 
-    onSelectItem: useCallback((code) => {
-      store.selectItem(code);
-    }, [store]),
+    onDeleteItemFromCartList: useCallback(
+      (item) => {
+        store.deleteItemFromCartList(item);
+        total.price = total.price - item.price * item.count;
+        total.count -= item.count;
 
-    onAddItem: useCallback(() => {
-      store.addItem();
-    }, [store])
-  }
+        setTotal(total);
+      },
+      [store, cartList]
+    ),
+
+    onShowCart: useCallback(() => {
+      setIsCartShowed(true);
+    }),
+
+    onHideCart: useCallback(() => {
+      setIsCartShowed(false);
+    }),
+  };
 
   return (
     <PageLayout>
-      <Head title='Приложение на чистом JS'/>
-      <Controls onAdd={callbacks.onAddItem}/>
-      <List list={list}
-            onDeleteItem={callbacks.onDeleteItem}
-            onSelectItem={callbacks.onSelectItem}/>
+      <Head title="Магазин" />
+      <Controls total={total} showCart={callbacks.onShowCart} />
+      <List
+        list={list}
+        action={{
+          actionType: "Добавить",
+          callback: callbacks.onAddItemToCartList,
+        }}
+      />
+      {isCartShowed && (
+        <Overlay>
+          <Cart
+            title="Корзина"
+            type="cart"
+            total={total}
+            cartList={cartList}
+            onDeleteItemFromCartList={callbacks.onDeleteItemFromCartList}
+            hideCart={callbacks.onHideCart}
+          />
+        </Overlay>
+      )}
     </PageLayout>
   );
+}
+
+function calculateTotal(arr) {
+  let totalPrice = 0;
+  let totalCount = 0;
+
+  for (let i = 0; i < arr.length; i++) {
+    totalPrice += arr[i].price * arr[i].count;
+    totalCount += arr[i].count;
+  }
+
+  return {
+    price: totalPrice,
+    count: totalCount,
+  };
 }
 
 export default App;
