@@ -12,7 +12,7 @@ const Cart = (props) => {
   return (
     <div className={cn()}>
       <Head title={props.title} type={props.type} hideCart={props.hideCart} />
-      {!!props.cartList.length && (
+      {!!props.cartSummary.uniqueProductsCount && (
         <List
           className={cn("content")}
           list={props.cartList}
@@ -24,7 +24,8 @@ const Cart = (props) => {
         />
       )}
       <div className={cn("subtitle")}>
-        Итого <span>{formatNumberWithSpaces(props.total.price)}₽</span>
+        Итого{" "}
+        <span>{formatNumberWithSpaces(props.cartSummary.totalCost)}₽</span>
       </div>
     </div>
   );
@@ -33,10 +34,10 @@ const Cart = (props) => {
 Cart.propTypes = {
   title: PropTypes.string,
   type: PropTypes.string,
-  total: PropTypes.object,
+  cartSummary: PropTypes.object,
   cartList: PropTypes.array,
   onDeleteItemFromCartList: PropTypes.func,
-  hideCart: PropTypes.hideCart,
+  hideCart: PropTypes.func,
 };
 
 export default React.memo(Cart);

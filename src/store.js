@@ -32,6 +32,10 @@ class Store {
     return this.state.cartList;
   }
 
+  getCartSummary() {
+    return this.state.cartSummary;
+  }
+
   /**
    * Установка состояния
    * @param newState {Object}
@@ -69,6 +73,25 @@ class Store {
     this.setState({
       ...this.state,
       cartList: [...updatedCartList],
+    });
+  }
+
+  calculateCartSummary(arr) {
+    let totalCost = 0;
+    let totalItemCount = 0;
+
+    for (let i = 0; i < arr.length; i++) {
+      totalCost += arr[i].price * arr[i].count;
+      totalItemCount += arr[i].count;
+    }
+
+    this.setState({
+      ...this.state,
+      cartSummary: {
+        uniqueProductsCount: arr.length,
+        totalCost,
+        totalItemCount,
+      },
     });
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import List from "./components/list";
 import Controls from "./components/controls";
 import Head from "./components/head";
@@ -15,11 +15,7 @@ import Overlay from "./components/overlay";
 function App({ store }) {
   const list = store.getState().list;
   const cartList = store.getCartList();
-
-  const [total, setTotal] = useState({
-    price: 0,
-    count: 0,
-  });
+  const cartSummary = store.getCartSummary();
 
   const [isCartShowed, setIsCartShowed] = useState(false);
 
@@ -27,8 +23,6 @@ function App({ store }) {
     onAddItemToCartList: useCallback(
       (item) => {
         store.addItemToCartList(item);
-        const total = calculateTotal(cartList);
-        setTotal(total);
       },
       [store, cartList]
     ),
@@ -36,10 +30,6 @@ function App({ store }) {
     onDeleteItemFromCartList: useCallback(
       (item) => {
         store.deleteItemFromCartList(item);
-        total.price = total.price - item.price * item.count;
-        total.count -= item.count;
-
-        setTotal(total);
       },
       [store, cartList]
     ),
@@ -53,10 +43,18 @@ function App({ store }) {
     }),
   };
 
+  useEffect(() => {
+    store.calculateCartSummary(cartList);
+  }, [cartList, store]);
+
   return (
     <PageLayout>
       <Head title="Магазин" />
-      <Controls total={total} showCart={callbacks.onShowCart} />
+      <Controls
+        cartList={cartList}
+        cartSummary={cartSummary}
+        showCart={callbacks.onShowCart}
+      />
       <List
         list={list}
         action={{
@@ -69,7 +67,7 @@ function App({ store }) {
           <Cart
             title="Корзина"
             type="cart"
-            total={total}
+            cartSummary={cartSummary}
             cartList={cartList}
             onDeleteItemFromCartList={callbacks.onDeleteItemFromCartList}
             hideCart={callbacks.onHideCart}
@@ -78,21 +76,6 @@ function App({ store }) {
       )}
     </PageLayout>
   );
-}
-
-function calculateTotal(arr) {
-  let totalPrice = 0;
-  let totalCount = 0;
-
-  for (let i = 0; i < arr.length; i++) {
-    totalPrice += arr[i].price * arr[i].count;
-    totalCount += arr[i].count;
-  }
-
-  return {
-    price: totalPrice,
-    count: totalCount,
-  };
 }
 
 export default App;

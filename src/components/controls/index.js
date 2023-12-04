@@ -12,15 +12,19 @@ function Controls(props) {
     <div className="Controls">
       <div>
         В корзине:{" "}
-        <span className={cn("total")}>
-          {props.total.count}{" "}
-          {plural(props.total.count, {
-            one: "товар",
-            few: "товаров",
-            many: "товара",
-          })}{" "}
-          / {formatNumberWithSpaces(props.total.price)} ₽
-        </span>
+        {!!props.cartSummary.uniqueProductsCount ? (
+          <span className={cn("cartSummary")}>
+            {props.cartSummary.uniqueProductsCount}{" "}
+            {plural(props.cartSummary.uniqueProductsCount, {
+              one: "товар",
+              few: "товаров",
+              many: "товара",
+            })}{" "}
+            / {formatNumberWithSpaces(props.cartSummary.totalCost)} ₽
+          </span>
+        ) : (
+          <span className={cn("cartSummary")}>пусто</span>
+        )}
       </div>
       <button onClick={() => props.showCart()}>Перейти</button>
     </div>
@@ -28,7 +32,8 @@ function Controls(props) {
 }
 
 Controls.propTypes = {
-  total: PropTypes.object,
+  cartList: PropTypes.array,
+  cartSummary: PropTypes.object,
   showCart: PropTypes.func,
 };
 
