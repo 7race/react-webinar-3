@@ -1,0 +1,12 @@
+.ArticleInfo {
+  padding: 40px;
+}
+
+.ArticleInfo-info {
+  font-weight: 700;
+}
+
+.ArticleInfo-price {
+  display: flex;
+  gap: 10px;
+}
